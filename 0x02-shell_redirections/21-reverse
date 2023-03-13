@@ -1,2 +1,2 @@
 #!/bin/bash
-echo "input string" | rev
+rev
