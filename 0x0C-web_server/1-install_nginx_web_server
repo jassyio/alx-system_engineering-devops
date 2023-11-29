@@ -4,7 +4,7 @@
 #+    Returns a page containing "Hello world!" when queried
 #++    at the root with a curl GET request.
 
- apt-get -y update
- apt-get -y install nginx
- 'Hello World!' > /var/www/html/index.nginx-debian.html
- service nginx start
+sudo apt-get -y update
+sudo apt-get -y install nginx
+echo 'Hello World!' > /var/www/html/index.nginx-debian.html
+sudo service nginx start
