@@ -1,12 +1,27 @@
-# /etc/haproxy/haproxy.cfg
+#!/usr/bin/env bash
+# ssl_termination_setup.sh
 
+domain="www.holberton.online" # Replace with your domain
+email="your_email@example.com" # Replace with your email
+
+# Install certbot if not installed
+if ! command -v certbot &>/dev/null; then
+    sudo apt-get update
+    sudo apt-get install -y certbot
+fi
+
+# Create SSL certificate using certbot
+sudo certbot certonly --standalone -d "$domain" --agree-tos -m "$email"
+
+# Update HAProxy configuration for SSL termination
+sudo tee /etc/haproxy/haproxy.cfg > /dev/null <<EOF
 frontend www-http
     bind *:80
     mode http
     redirect scheme https code 301 if !{ ssl_fc }
 
 frontend www-https
-    bind *:443 ssl crt /etc/ssl/certs/holberton.pem
+    bind *:443 ssl crt /etc/letsencrypt/live/www.holberton.online/fullchain.pem
     mode http
     option httplog
     acl is_holberton hdr_dom(host) -i www.holberton.online
@@ -17,3 +32,7 @@ backend holberton_backend
     balance roundrobin
     server web1 web-01-ip:80 check
     server web2 web-02-ip:80 check
+EOF
+
+# Restart HAProxy service to apply changes
+sudo systemctl restart haproxy
