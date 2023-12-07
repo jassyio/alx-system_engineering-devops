@@ -1,17 +1,25 @@
 #!/usr/bin/env bash
 # display contents of the subdomains
 
-display_info ()
-{
+display_info () {
     domain="$1"
     subdomain="$2"
-    dig "$subdomain.$domain" | awk '/ANSWER SECTION:/{getline; printf "The subdomain %s is a %s record and points to %s\n", var, $4, $5}' var="$subdomain"
+
+    # Retrieve the information from dig command using awk
+    dig_output=$(dig "$subdomain.$domain" +short)
+    record_type=$(echo "$dig_output" | awk 'NR==1{print $1}')
+
+    # Check if the record type exists in the dig output
+    if [ -n "$record_type" ]; then
+        destination=$(echo "$dig_output" | awk 'NR==1{print $2}')
+        echo "The subdomain $subdomain is a $record_type record and points to $destination"
+    fi
 }
 
 for subdomain in "www" "lb-01" "web-01" "web-02"
 do
     if [ -z "$2" ] || [ "$2" == "$subdomain" ] ;
     then
-	display_info "$1" "$subdomain"
+        display_info "$1" "$subdomain"
     fi
 done
