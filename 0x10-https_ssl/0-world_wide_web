@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# display contents about subdomains
+# display contents of the subdomains
 
 display_info ()
 {
