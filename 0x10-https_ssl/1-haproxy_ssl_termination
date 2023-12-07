@@ -1,38 +1,47 @@
-#!/usr/bin/env bash
-# ssl_termination_setup.sh
-
-domain="www.holberton.online" # Replace with your domain
-email="your_email@example.com" # Replace with your email
-
-# Install certbot if not installed
-if ! command -v certbot &>/dev/null; then
-    sudo apt-get update
-    sudo apt-get install -y certbot
-fi
-
-# Create SSL certificate using certbot
-sudo certbot certonly --standalone -d "$domain" --agree-tos -m "$email"
-
-# Update HAProxy configuration for SSL termination
-sudo tee /etc/haproxy/haproxy.cfg > /dev/null <<EOF
-frontend www-http
-    bind *:80
+global
+    log 127.0.0.1 local0 notice
+    maxconn 2000
+    user haproxy
+    group haproxy
+defaults
+    log     global
+    mode    http
+    option  forwardfor
+    option  http-server-close
+    retries 3
+    option redispatch
+    timeout connect  5000
+    timeout client  10000
+    timeout server  10000
+listen hbnb
+    bind 0.0.0.0:443
     mode http
-    redirect scheme https code 301 if !{ ssl_fc }
+    stats enable
+    stats uri /haproxy?stats
+    balance roundrobin
+    option httpclose
+    option forwardfor
+    server 338236-web-01 10.251.0.2 check
+    server 20205-web-02 3.239.82.120:80 check
+    option  forwardfor
+    option  http-server-close
+
+frontend www-http
+    bind   3.236.20.125:80
+    reqadd X-Forwarded-Proto:\ http
+    default_backend www-backend
 
 frontend www-https
-    bind *:443 ssl crt /etc/letsencrypt/live/www.holberton.online/fullchain.pem
-    mode http
-    option httplog
-    acl is_holberton hdr_dom(host) -i www.holberton.online
-    use_backend holberton_backend if is_holberton
+    bind   3.236.20.125:443 ssl crt /etc/haproxy/certs/www.kipronoh.tech.pem
+    reqadd X-Forwarded-Proto:\ https
+    acl letsencrypt-acl path_beg /.well-known/acme-challenge/
+    use_backend letsencrypt-backend if letsencrypt-acl
+    default_backend www-backend
 
-backend holberton_backend
-    mode http
-    balance roundrobin
-    server web1 web-01-ip:80 check
-    server web2 web-02-ip:80 check
-EOF
+backend www-backend
+   redirect scheme https if !{ ssl_fc }
+   server web-01 44.192.38.3:80 check
+   server web-02 3.239.82.120:80 check
 
-# Restart HAProxy service to apply changes
-sudo systemctl restart haproxy
+backend letsencrypt-backend
+   server letsencrypt 127.0.0.1:54321
