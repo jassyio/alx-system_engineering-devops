@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# Script to display information about subdomains for a given domain
+
+# Function to retrieve subdomain information
+get_subdomain_info() {
+    domain="$1"
+    subdomain="$2"
+
+    if [ -z "$subdomain" ]; then
+        subdomains=("www" "lb-01" "web-01" "web-02")
+    else
+        subdomains=("$subdomain")
+    fi
+
+    for sub in "${subdomains[@]}"; do
+        info=$(dig "${sub}.${domain}" | awk '/^;; ANSWER SECTION:$/,/^$/' | grep -v ';;' | awk '{print $1, $4}')
+        echo "The subdomain ${sub} ${info}"
+    done
+}
+
+# Validate input parameters
+if [ "$#" -eq 1 ]; then
+    domain="$1"
+    get_subdomain_info "$domain"
+elif [ "$#" -eq 2 ]; then
+    domain="$1"
+    subdomain="$2"
+    get_subdomain_info "$domain" "$subdomain"
+else
+    echo "Usage: $0 <domain> [subdomain]"
+    exit 1
+fi
