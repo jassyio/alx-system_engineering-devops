@@ -10,8 +10,8 @@ then
     print_info "$2.$1" "$2"
 else
     print_info "www.$1" "www"
-    print_info "lb-01.$1" "lb-01"
-    print_info "web-01.$1" "web-01"
-    print_info "web-02.$1" "web-02"
+    print_info "lb-01.$1" "100.26.162.170"
+    print_info "web-01.$1" "3.90.84.213"
+    print_info "web-02.$1" "100.25.118.60"
 fi
 
