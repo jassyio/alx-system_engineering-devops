@@ -3,9 +3,9 @@
 # except for the TCP ports 22, 443 and 80.
 
 apt-get install ufw
-# sed -i 's/IPV6=.*/IPV6=yes/' /etc/default/ufw
-# ufw disable
-# ufw enable
+sed -i 's/IPV6=.*/IPV6=yes/' /etc/default/ufw
+ufw status
+ufw enable
 ufw default deny incoming
 ufw default allow outgoing
 ufw allow 22/tcp
