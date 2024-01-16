@@ -3,7 +3,7 @@
 Function that query the Reddit API and prints
 top ten hot posts of a subreddit
 """
-from requests import get
+import requests
 
 
 def top_ten(subreddit):
