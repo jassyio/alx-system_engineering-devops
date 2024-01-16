@@ -3,10 +3,6 @@
 Function that query the Reddit API and returns
  number of subscribers for a given subreddit.
 """
-#!/usr/bin/python3
-"""
-number of subscribers for a given subreddit
-"""
 
 from requests import get
 
