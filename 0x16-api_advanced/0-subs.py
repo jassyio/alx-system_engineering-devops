@@ -19,6 +19,3 @@ def number_of_subscribers(subreddit):
         return subscribers
     except Exception as e:
         return 0
-
-if __name__ == "__main__":
-    pass  # This file is intended to be used as a module, not executed directly
